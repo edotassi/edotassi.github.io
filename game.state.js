@@ -33,6 +33,9 @@
   }
 
   function createGame() {
+    score = 0;
+    timeGameStart = new Date().getTime();
+
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     starfield = game.add.tileSprite(0, 0, 800, 600, "starfield");
@@ -101,8 +104,6 @@
     game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.addOnce(function() {
       game.state.start("menu");
     });
-
-    timeGameStart = new Date().getTime();
   }
 
   function createAliens() {
@@ -199,7 +200,7 @@
     explosion.play("kaboom", 30, false, true);
 
     if (aliens.countLiving() == 0) {
-      game.state.start("win");
+      endGame("win", Math.max(0, score - scoreLossPerSec));
     }
   }
 
@@ -229,6 +230,8 @@
 
     live = lives.getFirstAlive();
 
+    score -= 100;
+
     if (live) {
       live.kill();
     }
@@ -238,7 +241,7 @@
     explosion.play("kaboom", 30, false, true);
 
     if (lives.countLiving() < 1) {
-      game.state.start("lose");
+      endGame("lose");
     }
   }
 
@@ -265,6 +268,8 @@
 
   function fireBullet() {
     if (game.time.now > bulletTime) {
+      score -= 1;
+
       bullet = bullets.getFirstExists(false);
 
       if (bullet) {
@@ -288,10 +293,24 @@
     stateText.visible = false;
   }
 
-  function endGame(state) {
-    var nick = prompt("Inserisci il tuo nickname:");
+  function endGame(state, score) {
+    if (state === "win") {
+      var nick = prompt("Inserisci il tuo nickname:");
 
-    var play;
+      var ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+
+      ranking.push({ nick, score });
+
+      ranking.sort(function(left, right) {
+        return right.score - left.score;
+      });
+
+      ranking = ranking.slice(0, 10);
+
+      localStorage.setItem("ranking", JSON.stringify(ranking));
+    }
+
+    game.state.start(state);
   }
 
   var gameState = {
