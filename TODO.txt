@@ -1,0 +1,5 @@
+1. Schermata iniziale 
+2. Timer (già ti ho spiegato: scopo del gioco: ottenere il massimo punteggio nel minor tempo possibile. Quando si spara, si devono vedere i punteggi che man mano scompaiono). 
+3. Punteggio
+4. Classifiche di gioco (con relativi punteggi)
+5. Elenco Giocatori (ogni volta che si gioca, bisogna inserire none e cognome)
