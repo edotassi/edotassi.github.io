@@ -2,6 +2,7 @@
   var player;
   var aliens;
   var bullets;
+  var bonus;
   var bulletTime = 0;
   var bulletTimeDelta = 500;
   var cursors;
@@ -16,6 +17,7 @@
   var lives;
   var enemyBullet;
   var firingTimer = 0;
+  var bonusTimer = 0;
   var firingTimerDelta = 5000;
   var stateText;
   var livingEnemies = [];
@@ -24,6 +26,7 @@
 
   function preloadGame() {
     game.load.image("bullet", "assets/bullet.png");
+    game.load.image("bonus", "assets/bonus.png");
     game.load.image("enemyBullet", "assets/enemy-bullet.png");
     game.load.spritesheet("invader", "assets/invader32x32x4.png", 32, 32);
     game.load.image("ship", "assets/player.png");
@@ -57,6 +60,15 @@
     enemyBullets.setAll("anchor.y", 1);
     enemyBullets.setAll("outOfBoundsKill", true);
     enemyBullets.setAll("checkWorldBounds", true);
+
+    bonus = game.add.group();
+    bonus.enableBody = true;
+    bonus.physicsBodyType = Phaser.Physics.ARCADE;
+    bonus.createMultiple(10, "bonus");
+    bonus.setAll("anchor.x", 0.5);
+    bonus.setAll("anchor.y", 1);
+    bonus.setAll("outOfBoundsKill", false);
+    bonus.setAll("checkWorldBounds", true);
 
     player = game.add.sprite(400, 500, "ship");
     player.anchor.setTo(0.5, 0.5);
@@ -168,6 +180,10 @@
         enemyFires();
       }
 
+      if (game.time.now > bonusTimer) {
+        fireBonus();
+      }
+
       game.physics.arcade.overlap(
         bullets,
         aliens,
@@ -183,6 +199,7 @@
         this
       );
       game.physics.arcade.overlap(player, aliens, playerHitsEnemy, null, this);
+      game.physics.arcade.overlap(player, bonus, playerHitsBonus, null, this);
     }
   }
 
@@ -225,6 +242,14 @@
     }
   }
 
+  function playerHitsBonus(player, bonus) {
+    bonus.kill();
+
+    score += 50;
+
+    bonusTimer = game.time.now;
+  }
+
   function enemyHitsPlayer(player, bullet) {
     bullet.kill();
 
@@ -242,6 +267,26 @@
 
     if (lives.countLiving() < 1) {
       endGame("lose");
+    }
+  }
+
+  function fireBonus() {
+    enemyBonus = bonus.getFirstExists(false);
+
+    livingEnemies.length = 0;
+
+    aliens.forEachAlive(function(alien) {
+      livingEnemies.push(alien);
+    });
+
+    if (enemyBonus) {
+      var random = game.rnd.integerInRange(0, livingEnemies.length - 1);
+      var shooter = livingEnemies[random];
+      enemyBonus.reset(shooter.body.x, shooter.body.y);
+
+      var destX = game.rnd.integerInRange(50, 750);
+      game.physics.arcade.moveToXY(enemyBonus, destX, 600, 120);
+      bonusTimer = game.time.now + 5000;
     }
   }
 

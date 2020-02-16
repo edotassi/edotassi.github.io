@@ -10,25 +10,23 @@
       font: "50px Arial",
       fill: "#FFFFFF"
     });
+    game.add.text(80, game.world.height - 120, "Premi I per le istruzioni", {
+      font: "25px Arial",
+      fill: "#FFFFFF"
+    });
     game.add.text(80, game.world.height - 80, "Premi SPAZIO per iniziare", {
       font: "25px Arial",
       fill: "#FFFFFF"
     });
 
-    game.add.text(
-      80,
-      game.world.height - 300,
-      "Istruzioni:\nUsa le frecce direzionali per muovere la navicella\nSpazio per sparare\nEvita i colpi sparati dagli alieni\nHai solo 3 vite a tua disposizione!",
-      {
-        font: "25px Arial",
-        fill: "#FFFFFF"
-      }
-    );
+    game.input.keyboard
+      .addKey(Phaser.Keyboard.SPACEBAR)
+      .onDown.addOnce(function() {
+        game.state.start("game");
+      });
 
-    var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
-    spaceKey.onDown.addOnce(function() {
-      game.state.start("game");
+    game.input.keyboard.addKey(Phaser.Keyboard.I).onDown.addOnce(function() {
+      game.state.start("info");
     });
   }
 
